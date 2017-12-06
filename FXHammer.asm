@@ -64,9 +64,9 @@ FXHammer_Stop:
 	bit	1,[hl]
 	jr	z,.jmp_4084
 	ld	a,$08
-	ldh	[$ff17],a
+	ldh	[rNR22],a
 	ld	a,$80
-	ldh	[$ff19],a
+	ldh	[rNR24],a
 	ld	[hl],1
 .jmp_4084
 	ld	l,low(FXHammerRAM+FXHammer_SFXCH4)
@@ -74,9 +74,9 @@ FXHammer_Stop:
 	bit	1,[hl]
 	jr	z,.jmp_4096
 	ld	a,$08
-	ldh	[$ff21],a
+	ldh	[rNR42],a
 	ld	a,$80
-	ldh	[$ff23],a
+	ldh	[rNR44],a
 	ld	[hl],1
 .jmp_4096
 	ld	l,low(FXHammerRAM+FXHammer_RAM1)
@@ -112,31 +112,31 @@ FXHammer_Update:
 	jr	nz,.jmp_40c7
 	ld	[hl],1
 	ld	a,$08
-	ldh	[$ff17],a
+	ldh	[rNR22],a
 	ld	a,$80
-	ldh	[$ff19],a
+	ldh	[rNR24],a
 	jr	.jmp_40e6
 .jmp_40c7
 	ld	b,a
-	ldh	a,[$ff25]
+	ldh	a,[rNR51]
 	and	$dd
 	or	b
-	ldh	[$ff25],a
+	ldh	[rNR51],a
 	inc	e
 	ld	a,[de]
-	ldh	[$ff17],a
+	ldh	[rNR22],a
 	inc	e
 	ld	a,[de]
-	ldh	[$ff16],a
+	ldh	[rNR21],a
 	inc	e
 	ld	a,[de]
 	ld	b,$42
 	ld	c,a
 	ld	a,[bc]
-	ldh	[$ff18],a
+	ldh	[rNR23],a
 	inc	c
 	ld	a,[bc]
-	ldh	[$ff19],a
+	ldh	[rNR24],a
 	jr	.jmp_40e9
 .jmp_40e5
 	inc	e
@@ -154,24 +154,24 @@ FXHammer_Update:
 	jr	nz,.jmp_4100
 	ld	[hl],1
 	ld	a,$08
-	ldh	[$ff21],a
+	ldh	[rNR42],a
 	ld	a,$80
-	ldh	[$ff23],a
+	ldh	[rNR44],a
 	jr	.jmp_4119
 .jmp_4100
 	ld	b,a
-	ldh	a,[$ff25]
+	ldh	a,[rNR51]
 	and	$77
 	or	b
-	ldh	[$ff25],a
+	ldh	[rNR51],a
 	inc	e
 	ld	a,[de]
-	ldh	[$ff21],a
+	ldh	[rNR42],a
 	inc	e
 	ld	a,[de]
-	ldh	[$ff22],a
+	ldh	[rNR43],a
 	ld	a,$80
-	ldh	[$ff23],a
+	ldh	[rNR44],a
 	inc	e
 	ld	l,low(FXHammerRAM+FXHammer_RAM3)
 	ld	[hl],e
