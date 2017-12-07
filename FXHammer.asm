@@ -2,14 +2,14 @@
 
 section	"FX Hammer RAM",wram0[$c7c0]
 
-FXHammerRAM		ds	5
+FXHammerRAM		ds	6
 
 FXHammer_SFXCH2	equ	0
 FXHammer_SFXCH4	equ	1
 ; these are only temporary names, I have no idea what they're actually for at the moment
 FXHammer_RAM1	equ	2
-FXHammer_RAM2	equ	3
-FXHammer_RAM3	equ	4
+FXHammer_cnt	equ	3
+FXHammer_ptr	equ	4 ; 2 bytes
 
 FXHammerBank	equ	1
 
@@ -49,7 +49,7 @@ FXHammer_Trig:
 	ld	l,low(FXHammerRAM+FXHammer_SFXCH4)
 	or	[hl]
 	ld	[hl],a
-	ld	l,low(FXHammerRAM+FXHammer_RAM2)
+	ld	l,low(FXHammerRAM+FXHammer_cnt)
 	ld	a,1
 	ld	[hl+],a
 	xor	a
@@ -87,7 +87,7 @@ FXHammer_Stop:
 	
 FXHammer_Update:
 	xor	a
-	ld	hl,FXHammerRAM+FXHammer_RAM2
+	ld	hl,FXHammerRAM+FXHammer_cnt
 	or	[hl]
 	ret	z
 	dec	[hl]
@@ -97,7 +97,7 @@ FXHammer_Update:
 	ld	d,[hl]
 	ld	e,a
 	ld	a,[de]
-	ld	l,low(FXHammerRAM+FXHammer_RAM2)
+	ld	l,low(FXHammerRAM+FXHammer_cnt)
 	ld	[hl-],a
 	or	a
 	jr	nz,.jmp_40b0
@@ -130,7 +130,7 @@ FXHammer_Update:
 	ldh	[rNR21],a
 	inc	e
 	ld	a,[de]
-	ld	b,$42
+	ld	b,high(FXHammerData)
 	ld	c,a
 	ld	a,[bc]
 	ldh	[rNR23],a
@@ -173,7 +173,7 @@ FXHammer_Update:
 	ld	a,$80
 	ldh	[rNR44],a
 	inc	e
-	ld	l,low(FXHammerRAM+FXHammer_RAM3)
+	ld	l,low(FXHammerRAM+FXHammer_ptr)
 	ld	[hl],e
 	ret
 .jmp_4119
