@@ -1,6 +1,6 @@
 ; Disassembly of Aleksi Eeben's FX Hammer SFX player
 
-section	"FX Hammer RAM",wram0[$c7c0]
+section	"FX Hammer RAM",wram0
 
 FXHammerRAM		ds	5
 
