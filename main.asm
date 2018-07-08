@@ -1,5 +1,5 @@
 ; ================================================================
-; GB3D - simple, fast GBC raytracing engine
+; FXHammer disassembly
 ; ================================================================
 
 include	"hardware.inc"
