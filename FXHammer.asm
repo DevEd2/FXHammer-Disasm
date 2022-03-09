@@ -3,11 +3,33 @@
 section	"FX Hammer RAM",wram0
 
 FXHammerRAM:		ds	6
-FXHammer_SFXCH2		equ	0
-FXHammer_SFXCH4		equ	1
-FXHammer_prio		equ	2
-FXHammer_cnt		equ	3
-FXHammer_stepptr	equ	4 ; 2 bytes
+; Bit 2: Ch3 reserved for playing a sample trigged in music data (1 = yes, 0 = no)
+; Bit 1: Ch3 reserved for sound FX routines (1 = yes, 0 = no)
+; Bit 0: Ch3 music note playing (1 = no, 0 = yes)
+; When Ch3Flags is not $00, no instrument sound data is read and all Ch3 sound registers (rNR3x) remain intact.
+Ch2Flags			equ	0
+; Bit 1: Ch4 reserved for sound FX routines (1 = yes, 0 = no)
+; Bit 0: Ch4 music note playing (1 = no, 0 = yes)
+; When Ch4Flags is not $00, no instrument sound data is read and all Ch4 sound registers (rNR4x) remain intact.
+Ch4Flags			equ	1
+; FX Hammer: Priority of current Sound FX playing ($00 = lowest)
+FXCurrentPri		equ	2
+; FX Hammer: Countdown (in frames) before moving to next step in Sound FX
+FXSoundCount		equ	3
+; FX Hammer: Current Step
+FXSoundP			equ	4
+; FX Hammer: Current Sound FX (FX number + $44)
+FXSoundH			equ 5
+
+; A step is described in 8 bytes:
+; TIME/END (TM)
+; CH2/P_EV (P)
+; CH2/_LEV (L)
+; CH2/PWDT (W)
+; CH2/NOTE (NT)
+; CH4/P_EV (P)
+; CH4/_LEV (L)
+; CH4/FRQD (FR)
 
 FXHammerBank		equ	1
 
@@ -29,7 +51,7 @@ SoundFX_Update:
 FXHammer_Trig:
 	ld	e,a
 	ld	d,high(FXHammerData)
-	ld	hl,FXHammerRAM+FXHammer_prio
+	ld	hl,FXHammerRAM+FXCurrentPri
 	ld	a,[de]
 	cp	[hl]
 	jr	z,.sameprio
@@ -43,19 +65,19 @@ FXHammer_Trig:
 	ld	a,[de]
 	swap	a
 	and	$f
-	ld	l,low(FXHammerRAM+FXHammer_SFXCH2)
+	ld	l,low(FXHammerRAM+Ch2Flags)
 	or	[hl]
 	ld	[hl],a
 	ld	a,[de]
 	and	$f
-	ld	l,low(FXHammerRAM+FXHammer_SFXCH4)
+	ld	l,low(FXHammerRAM+Ch4Flags)
 	or	[hl]
 	ld	[hl],a
-	ld	l,low(FXHammerRAM+FXHammer_cnt)
+	ld	l,low(FXHammerRAM+FXSoundCount)
 	; trigger step on next update
 	ld	a,1
 	ld	[hl+],a
-	; FXHammerRAM+FXHammer_stepptr
+	; FXHammerRAM+FXSoundP
 	xor	a
 	ld	[hl+],a
 	ld	a,$44
@@ -65,7 +87,7 @@ FXHammer_Trig:
 	ret
 	
 FXHammer_Stop:
-	ld	hl,FXHammerRAM+FXHammer_SFXCH2
+	ld	hl,FXHammerRAM+Ch2Flags
 	bit	1,[hl]
 	jr	z,.skip_ch2
 	ld	a,$08
@@ -74,7 +96,7 @@ FXHammer_Stop:
 	ldh	[rNR24],a
 	ld	[hl],1
 .skip_ch2:
-	ld	l,low(FXHammerRAM+FXHammer_SFXCH4)
+	ld	l,low(FXHammerRAM+Ch4Flags)
 	set	0,[hl]
 	bit	1,[hl]
 	jr	z,.skip_ch4
@@ -84,17 +106,17 @@ FXHammer_Stop:
 	ldh	[rNR44],a
 	ld	[hl],1
 .skip_ch4:
-	ld	l,low(FXHammerRAM+FXHammer_prio)
+	ld	l,low(FXHammerRAM+FXCurrentPri)
 	xor	a
 	ld	[hl+],a
-	; FXHammerRAM+FXHammer_cnt
+	; FXHammerRAM+FXSoundCount
 	ld	[hl],a
 	ret
 	
 ; progress a frame
 FXHammer_Update:
 	xor	a
-	ld	hl,FXHammerRAM+FXHammer_cnt
+	ld	hl,FXHammerRAM+FXSoundCount
 	or	[hl]
 	; ret == 0
 	ret	z
@@ -103,22 +125,23 @@ FXHammer_Update:
 	ret	nz
 	inc	l
 	ld	a,[hl+]
-	; FXHammerRAM+FXHammer_stepptr
+	; FXHammerRAM+FXSoundP
 	; de = pointer
 	ld	d,[hl]
 	ld	e,a
 	; pointer+0
 	; TIME/END (TM)
+	; $80 is knee
 	ld	a,[de]
-	ld	l,low(FXHammerRAM+FXHammer_cnt)
+	ld	l,low(FXHammerRAM+FXSoundCount)
 	ld	[hl-],a
 	or	a
 	jr	nz,.keepprio
-	; FXHammerRAM+FXHammer_prio
+	; FXHammerRAM+FXCurrentPri
 	; Prio is reset on last step
 	ld	[hl],a
 .keepprio:
-	ld	l,low(FXHammerRAM+FXHammer_SFXCH2)
+	ld	l,low(FXHammerRAM+Ch2Flags)
 	bit	1,[hl]
 	jr	z,.skip_ch2
 	inc	e
@@ -176,7 +199,7 @@ FXHammer_Update:
 	inc	e
 	inc	e
 .noskip:
-	ld	l,low(FXHammerRAM+FXHammer_SFXCH4)
+	ld	l,low(FXHammerRAM+Ch4Flags)
 	bit	1,[hl]
 	jr	z,.skip_ch4
 	inc	e
@@ -213,12 +236,12 @@ FXHammer_Update:
 	ld	a,$80
 	ldh	[rNR44],a
 	inc	e
-	ld	l,low(FXHammerRAM+FXHammer_stepptr)
+	ld	l,low(FXHammerRAM+FXSoundP)
 	; set pointer to next step
 	ld	[hl],e
 	ret
 .skip_ch4:
-	ld	l,low(FXHammerRAM+FXHammer_stepptr)
+	ld	l,low(FXHammerRAM+FXSoundP)
 	ld	a,8
 	add	[hl]
 	; set pointer to next step
