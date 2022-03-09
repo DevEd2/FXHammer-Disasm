@@ -89,6 +89,7 @@ FXHammer_Trig:
 FXHammer_Stop:
 	ld	hl,FXHammerRAM+Ch2Flags
 	bit	1,[hl]
+	; no sound playing
 	jr	z,.skip_ch2
 	ld	a,$08
 	ldh	[rNR22],a
@@ -97,8 +98,10 @@ FXHammer_Stop:
 	ld	[hl],1
 .skip_ch2:
 	ld	l,low(FXHammerRAM+Ch4Flags)
+	; turn off music note (inverted bit)
 	set	0,[hl]
 	bit	1,[hl]
+	; no sound playing
 	jr	z,.skip_ch4
 	ld	a,$08
 	ldh	[rNR42],a
@@ -143,6 +146,7 @@ FXHammer_Update:
 .keepprio:
 	ld	l,low(FXHammerRAM+Ch2Flags)
 	bit	1,[hl]
+	; already music on channel 2
 	jr	z,.skip_ch2
 	inc	e
 	; pointer+1
@@ -201,6 +205,7 @@ FXHammer_Update:
 .noskip:
 	ld	l,low(FXHammerRAM+Ch4Flags)
 	bit	1,[hl]
+	; already music on channel 4
 	jr	z,.skip_ch4
 	inc	e
 	; pointer+5
