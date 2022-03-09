@@ -2,20 +2,20 @@
 ; FXHammer disassembly
 ; ================================================================
 
-include	"hardware.inc"
+include	"hardware.inc/hardware.inc"
 
 SECTION "Main variables",WRAM0
 
-SpriteBuffer	ds	100
+SpriteBuffer:	ds	100
 
-GBCFlag			ds	1
-sys_btnPress	ds	1
-sys_btnHold		ds	1
-VBlankIRQFlag	ds	1
-CPUSpeed		ds	1
-ROMBank			ds	1
+GBCFlag:		ds	1
+sys_btnPress:	ds	1
+sys_btnHold:	ds	1
+VBlankIRQFlag:	ds	1
+CPUSpeed:		ds	1
+ROMBank:		ds	1
 
-CurrentID		ds	1
+CurrentID:		ds	1
 
 ; ================================================================
 ; Constants
@@ -732,7 +732,7 @@ OAM_DMA:
 	dec	a
 	jr	nz,.wait
 	ret
-OAM_DMA_End
+OAM_DMA_End:
 
 CopyDMARoutine:
 	ld	hl,OAM_DMA

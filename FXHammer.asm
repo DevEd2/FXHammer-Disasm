@@ -2,7 +2,7 @@
 
 section	"FX Hammer RAM",wram0
 
-FXHammerRAM		ds	6
+FXHammerRAM:	ds	6
 
 FXHammer_SFXCH2	equ	0
 FXHammer_SFXCH4	equ	1
@@ -105,7 +105,7 @@ FXHammer_Update:
 .jmp_40b0
 	ld	l,low(FXHammerRAM+FXHammer_SFXCH2)
 	bit	1,[hl]
-	jr	z,.jmp_40e5
+	jr	z,.skip4
 	inc	e
 	ld	a,[de]
 	or	a
@@ -115,7 +115,7 @@ FXHammer_Update:
 	ldh	[rNR22],a
 	ld	a,$80
 	ldh	[rNR24],a
-	jr	.jmp_40e6
+	jr	.skip3
 .jmp_40c7
 	ld	b,a
 	ldh	a,[rNR51]
@@ -137,14 +137,14 @@ FXHammer_Update:
 	inc	c
 	ld	a,[bc]
 	ldh	[rNR24],a
-	jr	.jmp_40e9
-.jmp_40e5
+	jr	.noskip
+.skip4
 	inc	e
-.jmp_40e6
+.skip3
 	inc	e
 	inc	e
 	inc	e
-.jmp_40e9
+.noskip
 	ld	l,low(FXHammerRAM+FXHammer_SFXCH4)
 	bit	1,[hl]
 	jr	z,.jmp_4119
@@ -177,7 +177,7 @@ FXHammer_Update:
 	ld	[hl],e
 	ret
 .jmp_4119
-	ld	l,low(FXHammerRAM+FXHammer_RAM3)
+	ld	l,low(FXHammerRAM+FXHammer_ptr)
 	ld	a,8
 	add	[hl]
 	ld	[hl],a
